@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Advanced International Phone Number Generator</title>
+  <style>
+    /* Theme Variables & Transition Animation */
+    :root {
+      --bg: #ffffff;
+      --text: #222222;
+      --card: #f4f4f4;
+      --button: #007BFF;
+      --button-text: #ffffff;
+      --transition: 0.3s ease;
+      --font-size: 16px;
+    }
+    [data-theme="dark"] {
+      --bg: #1e1e1e;
+      --text: #e0e0e0;
+      --card: #2c2c2c;
+      --button: #3399ff;
+    }
+    [data-theme="black"] {
+      --bg: #000000;
+      --text: #f0f0f0;
+      --card: #0d0d0d;
+      --button: #4a90e2;
+    }
+
+    /* Global Styles */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 20px;
+      font-size: var(--font-size);
+      transition: background var(--transition), color var(--transition);
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: var(--card);
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: background var(--transition);
+    }
+    h1 { text-align: center; margin-bottom: 20px; }
+    form { display: flex; flex-direction: column; }
+    label {
+      margin: 10px 0 5px;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    /* Tooltip Styles */
+    .info-icon {
+      display: inline-block;
+      margin-left: 5px;
+      color: var(--button);
+      cursor: help;
+      position: relative;
+    }
+    .info-icon::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: -28px;
+      left: 0;
+      background: var(--text);
+      color: var(--bg);
+      padding: 5px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 10;
+    }
+    .info-icon:hover::after {
+      opacity: 1;
+    }
+    select, input[type="number"] { 
+      padding: 8px; 
+      width: 100%; 
+      margin-bottom: 10px; 
+      border: 1px solid #ccc; 
+      border-radius: 4px; 
+    }
+    .radio-group { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 10px; 
+      margin-bottom: 10px; 
+    }
+    .radio-group label { flex: 1; }
+    button {
+      padding: 10px;
+      background: var(--button);
+      color: var(--button-text);
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background var(--transition);
+    }
+    button:hover { background: #0056b3; }
+    .theme-toggle, .customization-panel {
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    .theme-toggle label, .customization-panel label { margin-right: 10px; }
+    .theme-toggle select, .customization-panel select {
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .inline-error {
+      color: red;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    /* Progress Spinner */
+    #progressIndicator {
+      display: none;
+      margin: 15px auto;
+      text-align: center;
+    }
+    .spinner {
+      border: 4px solid rgba(0,0,0,0.1);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border-left-color: var(--button);
+      animation: spin 1s linear infinite;
+      margin: 0 auto 10px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    /* Notification message */
+    #notification {
+      margin-top: 15px;
+      padding: 10px;
+      background: #e0ffe0;
+      border: 1px solid #00aa00;
+      border-radius: 4px;
+      color: #006600;
+      display: none;
+    }
+    @media (max-width: 480px) {
+      .radio-group { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>International Phone Number Generator</h1>
+    <!-- Theme and Customization Controls -->
+    <div class="theme-toggle">
+      <label for="themeSelector">Theme:</label>
+      <select id="themeSelector">
+        <option value="light">Light</option>
+        <option value="dark">Dark</option>
+        <option value="black">Black (AMOLED)</option>
+      </select>
+    </div>
+    <div class="customization-panel" style="justify-content: space-between;">
+      <div>
+        <label for="fontSizeSelector">Font Size:</label>
+        <select id="fontSizeSelector">
+          <option value="14px">Small</option>
+          <option value="16px" selected>Normal</option>
+          <option value="18px">Large</option>
+        </select>
+      </div>
+      <div>
+        <label for="layoutSelector">Layout:</label>
+        <select id="layoutSelector">
+          <option value="top">Top Navigation</option>
+          <option value="sidebar">Sidebar</option>
+        </select>
+      </div>
+      <div>
+        <button type="button" id="resetBtn">Reset Defaults</button>
+      </div>
+    </div>
+    <form id="generatorForm">
+      <!-- Country Code Selection with Tooltip -->
+      <label for="countryCode">
+        Select Country Code
+        <span class="info-icon" data-tooltip="Choose the country code. For example, +1 for USA, +91 for India, etc.">ℹ️</span>
+      </label>
+      <select id="countryCode" required>
+        <option value="+1">+1 (USA/Canada)</option>
+        <option value="+91">+91 (India)</option>
+        <option value="+44">+44 (UK)</option>
+        <option value="+61">+61 (Australia)</option>
+        <option value="+49">+49 (Germany)</option>
+        <option value="+33">+33 (France)</option>
+        <option value="+55">+55 (Brazil)</option>
+      </select>
+      
+      <!-- Number of Phone Numbers with Tooltip & Real-time Validation -->
+      <label for="count">
+        Number of Phone Numbers
+        <span class="info-icon" data-tooltip="Enter a value between 1 and 1000.">ℹ️</span>
+      </label>
+      <input type="number" id="count" min="1" max="1000" value="10" required>
+      <div id="countError" class="inline-error"></div>
+      
+      <!-- File Format Selection with Tooltip -->
+      <label>
+        Select Output Format
+        <span class="info-icon" data-tooltip="Choose file type: TXT, VCF (vCard), CSV, or JSON.">ℹ️</span>
+      </label>
+      <div class="radio-group">
+        <label><input type="radio" name="format" value="txt" checked> .txt</label>
+        <label><input type="radio" name="format" value="vcf"> .vcf</label>
+        <label><input type="radio" name="format" value="csv"> .csv</label>
+        <label><input type="radio" name="format" value="json"> .json</label>
+      </div>
+      
+      <!-- Generate Button -->
+      <button type="submit">Generate & Download</button>
+    </form>
+    
+    <!-- Progress Indicator -->
+    <div id="progressIndicator">
+      <div class="spinner"></div>
+      Generating contacts...
+    </div>
+    
+    <!-- Batch Operation Notification -->
+    <div id="notification"></div>
+  </div>
+
+  <script>
+    // Country code specific generators for realistic phone numbers.
+    const phoneGenerators = {
+      "+1": function() {
+        // USA/Canada (NANP): Generate a 10-digit number.
+        let area = (Math.floor(Math.random() * 8) + 2).toString() +
+                   Math.floor(Math.random() * 10).toString() +
+                   Math.floor(Math.random() * 10).toString();
+        let central = (Math.floor(Math.random() * 8) + 2).toString() +
+                      Math.floor(Math.random() * 10).toString() +
+                      Math.floor(Math.random() * 10).toString();
+        let station = "";
+        for (let i = 0; i < 4; i++) {
+          station += Math.floor(Math.random() * 10).toString();
+        }
+        return area + central + station;
+      },
+      "+91": function() {
+        // India: 10-digit mobile starting with 6, 7, 8, or 9.
+        let num = ["6", "7", "8", "9"][Math.floor(Math.random() * 4)];
+        for (let i = 1; i < 10; i++) {
+          num += Math.floor(Math.random() * 10).toString();
+        }
+        return num;
+      },
+      "+44": function() {
+        // UK Mobile: omit the leading zero; generate 10 digits starting with 7.
+        let num = "7";
+        for (let i = 1; i < 10; i++) {
+          num += Math.floor(Math.random() * 10).toString();
+        }
+        return num;
+      },
+      "+61": function() {
+        // Australia: drop the leading 0; generate 9 digits starting with 4.
+        let num = "4";
+        for (let i = 1; i < 9; i++) {
+          num += Math.floor(Math.random() * 10).toString();
+        }
+        return num;
+      },
+      "+49": function() {
+        // Germany: using common mobile prefixes.
+        const prefixes = ["151", "152", "157", "159"];
+        let num = prefixes[Math.floor(Math.random() * prefixes.length)];
+        for (let i = 0; i < 7; i++) {
+          num += Math.floor(Math.random() * 10).toString();
+        }
+        return num;
+      },
+      "+33": function() {
+        // France: 9 digits starting with 6 or 7.
+        let num = (Math.random() < 0.5 ? "6" : "7");
+        for (let i = 1; i < 9; i++) {
+          num += Math.floor(Math.random() * 10).toString();
+        }
+        return num;
+      },
+      "+55": function() {
+        // Brazil: mobile numbers start with 9 and are 9 digits.
+        let num = "9";
+        for (let i = 1; i < 9; i++) {
+          num += Math.floor(Math.random() * 10).toString();
+        }
+        return num;
+      }
+    };
+
+    // Fallback generic generator for 10-digit numbers.
+    function defaultGenerator() {
+      let num = (Math.floor(Math.random() * 9) + 1).toString();
+      for (let i = 1; i < 10; i++) {
+        num += Math.floor(Math.random() * 10).toString();
+      }
+      return num;
+    }
+
+    // Build output content for selected format.
+    function createFileContent(countryCode, count, format) {
+      let content = "";
+      const generateNumber = phoneGenerators[countryCode] || defaultGenerator;
+      
+      if (format === "txt") {
+        for (let i = 1; i <= count; i++) {
+          const phoneNumber = countryCode + generateNumber();
+          content += `Contact ${i}: ${phoneNumber}\n`;
+        }
+      } else if (format === "vcf") {
+        for (let i = 1; i <= count; i++) {
+          const phoneNumber = countryCode + generateNumber();
+          content += "BEGIN:VCARD\n";
+          content += "VERSION:3.0\n";
+          content += `FN:Contact ${i}\n`;
+          content += `TEL;TYPE=CELL:${phoneNumber}\n`;
+          content += "END:VCARD\n\n";
+        }
+      } else if (format === "csv") {
+        content = "Contact,Phone Number\n";
+        for (let i = 1; i <= count; i++) {
+          const phoneNumber = countryCode + generateNumber();
+          content += `"Contact ${i}","${phoneNumber}"\n`;
+        }
+      } else if (format === "json") {
+        let contacts = [];
+        for (let i = 1; i <= count; i++) {
+          const phoneNumber = countryCode + generateNumber();
+          contacts.push({ contact: `Contact ${i}`, phoneNumber: phoneNumber });
+        }
+        content = JSON.stringify(contacts, null, 2);
+      }
+      return content;
+    }
+    
+    // Utility: Trigger file download.
+    function downloadFile(filename, content) {
+      const blob = new Blob([content], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    
+    // Real-time validation for number input.
+    const countInput = document.getElementById("count");
+    const countError = document.getElementById("countError");
+    countInput.addEventListener("input", () => {
+      const value = parseInt(countInput.value, 10);
+      if (isNaN(value) || value < 1 || value > 1000) {
+        countError.textContent = "Please enter a number between 1 and 1000.";
+      } else {
+        countError.textContent = "";
+      }
+    });
+    
+    // Reset button: revert form fields to default values.
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      document.getElementById("countryCode").value = "+1";
+      document.getElementById("count").value = "10";
+      document.querySelector('input[name="format"][value="txt"]').checked = true;
+      countError.textContent = "";
+    });
+    
+    // Handle form submission.
+    document.getElementById("generatorForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      // Validate count input again.
+      const countValue = parseInt(countInput.value, 10);
+      if (isNaN(countValue) || countValue < 1 || countValue > 1000) {
+        countError.textContent = "Please enter a valid number between 1 and 1000.";
+        return;
+      }
+      
+      // Show progress indicator.
+      const progress = document.getElementById("progressIndicator");
+      progress.style.display = "block";
+      
+      // Start timer.
+      const startTime = performance.now();
+      
+      // Simulate processing delay (for demo purposes).
+      setTimeout(() => {
+        const countryCode = document.getElementById("countryCode").value;
+        const format = document.querySelector('input[name="format"]:checked').value;
+        const content = createFileContent(countryCode, countValue, format);
+        const filename = "contacts." + format;
+        
+        // Trigger file download.
+        downloadFile(filename, content);
+        
+        // Calculate elapsed time.
+        const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
+        
+        // Hide progress indicator.
+        progress.style.display = "none";
+        
+        // Show notification.
+        const notification = document.getElementById("notification");
+        notification.textContent = `Generated ${countValue} contacts in ${elapsed} seconds. Download started.`;
+        notification.style.display = "block";
+        
+        // Hide notification after 5 seconds.
+        setTimeout(() => {
+          notification.style.display = "none";
+        }, 5000);
+        
+      }, 500); // simulate 500ms delay
+    });
+    
+    /* Theme Toggle */
+    const themeSelector = document.getElementById("themeSelector");
+    const root = document.documentElement;
+    
+    function applyTheme(theme) {
+      root.setAttribute("data-theme", theme);
+      localStorage.setItem("preferredTheme", theme);
+      themeSelector.value = theme;
+    }
+    themeSelector.addEventListener("change", () => {
+      applyTheme(themeSelector.value);
+    });
+    const savedTheme = localStorage.getItem("preferredTheme") || "light";
+    applyTheme(savedTheme);
+    
+    /* Font Size Control */
+    const fontSizeSelector = document.getElementById("fontSizeSelector");
+    fontSizeSelector.addEventListener("change", () => {
+      document.documentElement.style.setProperty("--font-size", fontSizeSelector.value);
+    });
+    // Set default font size.
+    document.documentElement.style.setProperty("--font-size", fontSizeSelector.value);
+    
+    /* Layout Control (Placeholder) */
+    const layoutSelector = document.getElementById("layoutSelector");
+    layoutSelector.addEventListener("change", () => {
+      // In a full implementation, you would rearrange elements based on layout.
+      // For now, simply log the choice.
+      console.log("Layout changed to:", layoutSelector.value);
+    });
+  </script>
+</body>
+</html>
