@@ -27,7 +27,6 @@
       --card: #0d0d0d;
       --button: #4a90e2;
     }
-
     /* Global Styles */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -160,6 +159,7 @@
 <body>
   <div class="container">
     <h1>International Phone Number Generator</h1>
+    
     <!-- Theme and Customization Controls -->
     <div class="theme-toggle">
       <label for="themeSelector">Theme:</label>
@@ -189,11 +189,12 @@
         <button type="button" id="resetBtn">Reset Defaults</button>
       </div>
     </div>
+    
     <form id="generatorForm">
       <!-- Country Code Selection with Tooltip -->
       <label for="countryCode">
         Select Country Code
-        <span class="info-icon" data-tooltip="Choose the country code. For example, +1 for USA, +91 for India, etc.">ℹ️</span>
+        <span class="info-icon" data-tooltip="Choose the country code. E.g., +1 for USA/Canada, +91 for India, etc.">ℹ️</span>
       </label>
       <select id="countryCode" required>
         <option value="+1">+1 (USA/Canada)</option>
@@ -203,7 +204,19 @@
         <option value="+49">+49 (Germany)</option>
         <option value="+33">+33 (France)</option>
         <option value="+55">+55 (Brazil)</option>
+        <option value="+81">+81 (Japan)</option>
+        <option value="+86">+86 (China)</option>
+        <option value="+7">+7 (Russia)</option>
       </select>
+      
+      <!-- US State Dropdown for +1 -->
+      <div id="usStateContainer" style="display: none;">
+        <label for="usStateSelect">
+          Select US State (Area Code)
+          <span class="info-icon" data-tooltip="Select a state; the option will list its current active area code(s).">ℹ️</span>
+        </label>
+        <select id="usStateSelect"></select>
+      </div>
       
       <!-- Number of Phone Numbers with Tooltip & Real-time Validation -->
       <label for="count">
@@ -226,7 +239,7 @@
       </div>
       
       <!-- Generate Button -->
-      <button type="submit">Generate & Download</button>
+      <button type="submit">Generate &amp; Download</button>
     </form>
     
     <!-- Progress Indicator -->
@@ -235,92 +248,169 @@
       Generating contacts...
     </div>
     
-    <!-- Batch Operation Notification -->
+    <!-- Notification Message -->
     <div id="notification"></div>
   </div>
 
   <script>
-    // Country code specific generators for realistic phone numbers.
+    /* --- Helper Functions for Realistic Number Generation --- */
+    // Generate a random digit in the range [min, max].
+    function randomDigit(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    // Generate a string by replacing "N" with a digit from 2–9 and "X" with any digit.
+    function generateByPattern(pattern) {
+      return pattern.split("").map(char => {
+        if (char === 'N') {
+          return randomDigit(2, 9).toString();
+        } else if (char === 'X') {
+          return randomDigit(0, 9).toString();
+        } else {
+          return char;
+        }
+      }).join("");
+    }
+    // Generate a central office code with the format "NXX" while avoiding forbidden codes.
+    function generateCentralOffice() {
+      let code;
+      do {
+        code = generateByPattern("NXX");
+      } while (code === "555" || code === "911");
+      return code;
+    }
+    // Generate a four-digit station number.
+    function generateStationNumber() {
+      return generateByPattern("XXXX");
+    }
+
+    /* --- Comprehensive US States and Their Active Area Codes --- */
+    const usStates = {
+      "Alabama": ["205", "251", "256", "334", "938"],
+      "Alaska": ["907"],
+      "Arizona": ["480", "520", "602", "623", "928"],
+      "Arkansas": ["479", "501", "870"],
+      "California": ["209","213","310","323","408","415","424","442","510","530","559","562","619","626","650","657","661","707","714","747","760","805","818","820","831","858","909","916","925","949","951"],
+      "Colorado": ["303","719","720","970"],
+      "Connecticut": ["203","475","860","959"],
+      "Delaware": ["302"],
+      "Florida": ["239","305","321","352","386","407","561","727","754","772","786","813","850","863","904","941","954"],
+      "Georgia": ["229","404","470","478","678","706","762","770","912"],
+      "Hawaii": ["808"],
+      "Idaho": ["208","986"],
+      "Illinois": ["217","224","309","312","331","447","618","630","708","773","815","847","872"],
+      "Indiana": ["219","260","317","463","574","765","812","930"],
+      "Iowa": ["319","515","563","641","712"],
+      "Kansas": ["316","620","785","913"],
+      "Kentucky": ["270","364","502","606","859"],
+      "Louisiana": ["225","318","337","504","985"],
+      "Maine": ["207"],
+      "Maryland": ["240","301","410","443","667"],
+      "Massachusetts": ["339","351","413","508","617","774","781","857","978"],
+      "Michigan": ["231","248","269","313","517","586","616","734","810","906","989"],
+      "Minnesota": ["218","320","507","612","651","763","952"],
+      "Mississippi": ["228","601","662","769"],
+      "Missouri": ["314","417","573","636","660","816","975"],
+      "Montana": ["406"],
+      "Nebraska": ["308","402","531"],
+      "Nevada": ["702","725","775"],
+      "New Hampshire": ["603"],
+      "New Jersey": ["201","551","609","640","732","848","856","862","908","973"],
+      "New Mexico": ["505","575"],
+      "New York": ["212","315","332","347","516","518","585","607","631","646","716","718","845","914","917","929","934"],
+      "North Carolina": ["252","336","704","743","828","910","919","980","984"],
+      "North Dakota": ["701"],
+      "Ohio": ["216","220","234","330","419","440","513","567","614","740","937"],
+      "Oklahoma": ["405","539","580","918"],
+      "Oregon": ["458","503","541","971"],
+      "Pennsylvania": ["215","223","267","272","412","445","484","570","610","717","724","814","878"],
+      "Rhode Island": ["401"],
+      "South Carolina": ["803","843","854","864"],
+      "South Dakota": ["605"],
+      "Tennessee": ["423","615","629","731","865","901","931"],
+      "Texas": ["210","214","254","281","325","346","361","409","430","432","469","512","682","713","726","737","806","817","830","832","903","915","936","940","956","972","979"],
+      "Utah": ["385","435","801"],
+      "Vermont": ["802"],
+      "Virginia": ["276","434","540","571","703","757","804"],
+      "Washington": ["206","253","360","425","509"],
+      "West Virginia": ["304","681"],
+      "Wisconsin": ["262","414","534","608","715","920"],
+      "Wyoming": ["307"],
+      "District of Columbia": ["202"]
+    };
+
+    /* --- Populate US State Dropdown --- */
+    const usStateSelect = document.getElementById("usStateSelect");
+    function populateStates() {
+      usStateSelect.innerHTML = "";
+      for (const state in usStates) {
+        const codes = usStates[state].join(", ");
+        const option = document.createElement("option");
+        // Store all area codes as a comma‑separated string.
+        option.value = usStates[state].join(",");
+        option.textContent = `${state} (${codes})`;
+        usStateSelect.appendChild(option);
+      }
+    }
+    
+    /* --- Phone Number Generators for Each Country --- */
     const phoneGenerators = {
       "+1": function() {
-        // USA/Canada (NANP): Generate a 10-digit number.
-        let area = (Math.floor(Math.random() * 8) + 2).toString() +
-                   Math.floor(Math.random() * 10).toString() +
-                   Math.floor(Math.random() * 10).toString();
-        let central = (Math.floor(Math.random() * 8) + 2).toString() +
-                      Math.floor(Math.random() * 10).toString() +
-                      Math.floor(Math.random() * 10).toString();
-        let station = "";
-        for (let i = 0; i < 4; i++) {
-          station += Math.floor(Math.random() * 10).toString();
+        let area;
+        // If a state is selected, extract the area codes and choose one at random.
+        if (usStateSelect && usStateSelect.value) {
+          const areas = usStateSelect.value.split(",");
+          area = areas[Math.floor(Math.random() * areas.length)].trim();
+        } else {
+          area = generateByPattern("NXX");
         }
+        const central = generateCentralOffice();
+        const station = generateStationNumber();
         return area + central + station;
       },
       "+91": function() {
-        // India: 10-digit mobile starting with 6, 7, 8, or 9.
-        let num = ["6", "7", "8", "9"][Math.floor(Math.random() * 4)];
-        for (let i = 1; i < 10; i++) {
-          num += Math.floor(Math.random() * 10).toString();
-        }
-        return num;
+        let firstDigit = ["6", "7", "8", "9"][Math.floor(Math.random() * 4)];
+        return firstDigit + generateByPattern("XXXXXXXXX");
       },
       "+44": function() {
-        // UK Mobile: omit the leading zero; generate 10 digits starting with 7.
-        let num = "7";
-        for (let i = 1; i < 10; i++) {
-          num += Math.floor(Math.random() * 10).toString();
-        }
-        return num;
+        return generateByPattern("7XXXXXXXXX");
       },
       "+61": function() {
-        // Australia: drop the leading 0; generate 9 digits starting with 4.
-        let num = "4";
-        for (let i = 1; i < 9; i++) {
-          num += Math.floor(Math.random() * 10).toString();
-        }
-        return num;
+        return generateByPattern("4XXXXXXXX");
       },
       "+49": function() {
-        // Germany: using common mobile prefixes.
-        const prefixes = ["151", "152", "157", "159"];
-        let num = prefixes[Math.floor(Math.random() * prefixes.length)];
-        for (let i = 0; i < 7; i++) {
-          num += Math.floor(Math.random() * 10).toString();
-        }
-        return num;
+        const prefixes = ["151","152","157","159"];
+        let prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        return prefix + generateByPattern("XXXXXXX");
       },
       "+33": function() {
-        // France: 9 digits starting with 6 or 7.
-        let num = (Math.random() < 0.5 ? "6" : "7");
-        for (let i = 1; i < 9; i++) {
-          num += Math.floor(Math.random() * 10).toString();
-        }
-        return num;
+        let first = Math.random() < 0.5 ? "6" : "7";
+        return first + generateByPattern("XXXXXXXX");
       },
       "+55": function() {
-        // Brazil: mobile numbers start with 9 and are 9 digits.
-        let num = "9";
-        for (let i = 1; i < 9; i++) {
-          num += Math.floor(Math.random() * 10).toString();
-        }
-        return num;
+        return "9" + generateByPattern("XXXXXXXX");
+      },
+      "+81": function() {
+        const prefixes = ["080","090","070"];
+        let prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        return prefix + generateByPattern("XXXXXXXX");
+      },
+      "+86": function() {
+        const prefixes = ["130","131","132","133","134","135","136","137","138","139"];
+        let prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+        return prefix + generateByPattern("XXXXXXXX");
+      },
+      "+7": function() {
+        return "9" + generateByPattern("XXXXXXXXX");
       }
     };
-
-    // Fallback generic generator for 10-digit numbers.
     function defaultGenerator() {
-      let num = (Math.floor(Math.random() * 9) + 1).toString();
-      for (let i = 1; i < 10; i++) {
-        num += Math.floor(Math.random() * 10).toString();
-      }
-      return num;
+      return generateByPattern("XXXXXXXXXX");
     }
-
-    // Build output content for selected format.
+    
+    /* --- Create File Content --- */
     function createFileContent(countryCode, count, format) {
       let content = "";
       const generateNumber = phoneGenerators[countryCode] || defaultGenerator;
-      
       if (format === "txt") {
         for (let i = 1; i <= count; i++) {
           const phoneNumber = countryCode + generateNumber();
@@ -352,7 +442,7 @@
       return content;
     }
     
-    // Utility: Trigger file download.
+    /* --- Utility to Trigger File Download --- */
     function downloadFile(filename, content) {
       const blob = new Blob([content], { type: "text/plain" });
       const link = document.createElement("a");
@@ -363,101 +453,91 @@
       document.body.removeChild(link);
     }
     
-    // Real-time validation for number input.
+    /* --- Input Validation --- */
     const countInput = document.getElementById("count");
     const countError = document.getElementById("countError");
     countInput.addEventListener("input", () => {
       const value = parseInt(countInput.value, 10);
-      if (isNaN(value) || value < 1 || value > 1000) {
-        countError.textContent = "Please enter a number between 1 and 1000.";
+      countError.textContent = (isNaN(value) || value < 1 || value > 1000) 
+                                ? "Please enter a number between 1 and 1000." : "";
+    });
+    
+    /* --- Country Code and US State Dropdown Handling --- */
+    const countryCodeSelect = document.getElementById("countryCode");
+    const usStateContainer = document.getElementById("usStateContainer");
+    countryCodeSelect.addEventListener("change", () => {
+      if (countryCodeSelect.value === "+1") {
+        usStateContainer.style.display = "block";
+        populateStates();
       } else {
-        countError.textContent = "";
+        usStateContainer.style.display = "none";
       }
     });
+    // On initial load, display state dropdown if country is +1.
+    if (countryCodeSelect.value === "+1") {
+      usStateContainer.style.display = "block";
+      populateStates();
+    }
     
-    // Reset button: revert form fields to default values.
-    document.getElementById("resetBtn").addEventListener("click", () => {
-      document.getElementById("countryCode").value = "+1";
-      document.getElementById("count").value = "10";
-      document.querySelector('input[name="format"][value="txt"]').checked = true;
-      countError.textContent = "";
-    });
-    
-    // Handle form submission.
+    /* --- Form Submission Handler --- */
     document.getElementById("generatorForm").addEventListener("submit", function(e) {
       e.preventDefault();
-      // Validate count input again.
       const countValue = parseInt(countInput.value, 10);
       if (isNaN(countValue) || countValue < 1 || countValue > 1000) {
         countError.textContent = "Please enter a valid number between 1 and 1000.";
         return;
       }
-      
-      // Show progress indicator.
       const progress = document.getElementById("progressIndicator");
       progress.style.display = "block";
-      
-      // Start timer.
       const startTime = performance.now();
-      
-      // Simulate processing delay (for demo purposes).
       setTimeout(() => {
         const countryCode = document.getElementById("countryCode").value;
         const format = document.querySelector('input[name="format"]:checked').value;
         const content = createFileContent(countryCode, countValue, format);
         const filename = "contacts." + format;
-        
-        // Trigger file download.
         downloadFile(filename, content);
-        
-        // Calculate elapsed time.
         const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
-        
-        // Hide progress indicator.
         progress.style.display = "none";
-        
-        // Show notification.
         const notification = document.getElementById("notification");
         notification.textContent = `Generated ${countValue} contacts in ${elapsed} seconds. Download started.`;
         notification.style.display = "block";
-        
-        // Hide notification after 5 seconds.
         setTimeout(() => {
           notification.style.display = "none";
         }, 5000);
-        
-      }, 500); // simulate 500ms delay
+      }, 500);
     });
     
-    /* Theme Toggle */
+    /* --- Theme Toggle & Customization --- */
     const themeSelector = document.getElementById("themeSelector");
     const root = document.documentElement;
-    
     function applyTheme(theme) {
       root.setAttribute("data-theme", theme);
       localStorage.setItem("preferredTheme", theme);
       themeSelector.value = theme;
     }
-    themeSelector.addEventListener("change", () => {
-      applyTheme(themeSelector.value);
-    });
+    themeSelector.addEventListener("change", () => { applyTheme(themeSelector.value); });
     const savedTheme = localStorage.getItem("preferredTheme") || "light";
     applyTheme(savedTheme);
     
-    /* Font Size Control */
     const fontSizeSelector = document.getElementById("fontSizeSelector");
     fontSizeSelector.addEventListener("change", () => {
       document.documentElement.style.setProperty("--font-size", fontSizeSelector.value);
     });
-    // Set default font size.
     document.documentElement.style.setProperty("--font-size", fontSizeSelector.value);
     
-    /* Layout Control (Placeholder) */
     const layoutSelector = document.getElementById("layoutSelector");
     layoutSelector.addEventListener("change", () => {
-      // In a full implementation, you would rearrange elements based on layout.
-      // For now, simply log the choice.
       console.log("Layout changed to:", layoutSelector.value);
+    });
+    
+    // Reset functionality.
+    document.getElementById("resetBtn").addEventListener("click", () => {
+      document.getElementById("countryCode").value = "+1";
+      document.getElementById("count").value = "10";
+      document.querySelector('input[name="format"][value="txt"]').checked = true;
+      countError.textContent = "";
+      usStateContainer.style.display = "block";
+      populateStates();
     });
   </script>
 </body>
