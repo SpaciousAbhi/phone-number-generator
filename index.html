@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Advanced International Phone Number Generator</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Advanced Random Real International Phone Number Generator Tool</title>
   <style>
-    /* Theme Variables & Transition Animation */
+    /* Base & Theme Variables */
     :root {
       --bg: #ffffff;
       --text: #222222;
@@ -22,179 +22,180 @@
       --button: #3399ff;
     }
     [data-theme="black"] {
-      --bg: #000000;
+      --bg: #000;
       --text: #f0f0f0;
       --card: #0d0d0d;
       --button: #4a90e2;
     }
-    /* Global Styles */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* Auto = follow system */
+    @media (prefers-color-scheme: dark) {
+      :root[data-theme="auto"] {
+        --bg: #1e1e1e;
+        --text: #e0e0e0;
+        --card: #2c2c2c;
+        --button: #3399ff;
+      }
+    }
+    @media (prefers-color-scheme: light) {
+      :root[data-theme="auto"] {
+        --bg: #fff;
+        --text: #222;
+        --card: #f4f4f4;
+        --button: #007BFF;
+      }
+    }
+
+    /* Global */
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      padding: 20px;
-      font-size: var(--font-size);
-      transition: background var(--transition), color var(--transition);
+      font-family:Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      padding:20px;
+      font-size:var(--font-size);
+      transition:background var(--transition),color var(--transition);
     }
     .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: var(--card);
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      transition: background var(--transition);
+      max-width:600px;
+      margin:0 auto;
+      background:var(--card);
+      padding:20px;
+      border-radius:8px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
     }
-    h1 { text-align: center; margin-bottom: 20px; }
-    form { display: flex; flex-direction: column; }
-    label {
-      margin: 10px 0 5px;
-      position: relative;
-      display: flex;
-      align-items: center;
+    h1 { text-align:center; margin-bottom:20px; }
+
+    /* Controls Panel */
+    .controls {
+      display:flex;
+      flex-wrap:wrap;
+      gap:20px;
+      margin-bottom:20px;
     }
-    /* Tooltip Styles */
+    .controls > div {
+      flex:1 1 200px;
+      display:flex;
+      align-items:center;
+    }
+    .controls label {
+      margin-right:10px;
+      white-space:nowrap;
+    }
+    .controls select,
+    .controls input[type="range"] {
+      flex:1;
+    }
+    .controls .font-size-value {
+      margin-left:10px;
+      width:3em;
+      text-align:right;
+    }
+
+    /* Form & Tooltips */
+    form { display:flex; flex-direction:column; }
+    label.field-label {
+      margin-top:10px;
+      margin-bottom:5px;
+      display:flex;
+      align-items:center;
+    }
     .info-icon {
-      display: inline-block;
-      margin-left: 5px;
-      color: var(--button);
-      cursor: help;
-      position: relative;
+      margin-left:5px;
+      color:var(--button);
+      cursor:help;
+      position:relative;
     }
     .info-icon::after {
-      content: attr(data-tooltip);
-      position: absolute;
-      bottom: -28px;
-      left: 0;
-      background: var(--text);
-      color: var(--bg);
-      padding: 5px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-      white-space: nowrap;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s;
-      z-index: 10;
+      content:attr(data-tooltip);
+      position:absolute;
+      bottom:-1.8em;
+      left:0;
+      background:var(--text);
+      color:var(--bg);
+      padding:4px 6px;
+      border-radius:4px;
+      font-size:12px;
+      white-space:nowrap;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity 0.2s;
     }
-    .info-icon:hover::after {
-      opacity: 1;
+    .info-icon:hover::after { opacity:1; }
+    select, input[type="number"] {
+      padding:8px; width:100%; border:1px solid #ccc; border-radius:4px;
     }
-    select, input[type="number"] { 
-      padding: 8px; 
-      width: 100%; 
-      margin-bottom: 10px; 
-      border: 1px solid #ccc; 
-      border-radius: 4px; 
+    .radio-group {
+      display:flex; flex-wrap:wrap; gap:10px; margin-top:5px;
     }
-    .radio-group { 
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: 10px; 
-      margin-bottom: 10px; 
-    }
-    .radio-group label { flex: 1; }
+    .radio-group label { flex:1; }
     button {
-      padding: 10px;
-      background: var(--button);
-      color: var(--button-text);
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: background var(--transition);
+      margin-top:15px;
+      padding:10px;
+      background:var(--button);
+      color:var(--button-text);
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+      transition:background var(--transition);
     }
-    button:hover { background: #0056b3; }
-    .theme-toggle, .customization-panel {
-      margin-bottom: 20px;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-    }
-    .theme-toggle label, .customization-panel label { margin-right: 10px; }
-    .theme-toggle select, .customization-panel select {
-      padding: 5px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
+    button:hover { background:darken(var(--button),10%); }
     .inline-error {
-      color: red;
-      font-size: 12px;
-      margin-top: 5px;
+      color:red; font-size:12px; margin-top:4px;
     }
-    /* Progress Spinner */
+
+    /* Spinner & Notification */
     #progressIndicator {
-      display: none;
-      margin: 15px auto;
-      text-align: center;
+      display:none;
+      text-align:center;
+      margin-top:15px;
     }
     .spinner {
-      border: 4px solid rgba(0,0,0,0.1);
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border-left-color: var(--button);
-      animation: spin 1s linear infinite;
-      margin: 0 auto 10px;
+      border:4px solid rgba(0,0,0,0.1);
+      border-left-color:var(--button);
+      border-radius:50%;
+      width:36px; height:36px;
+      animation:spin 1s linear infinite;
+      margin:0 auto 8px;
     }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    /* Notification message */
+    @keyframes spin { to { transform:rotate(360deg); } }
     #notification {
-      margin-top: 15px;
-      padding: 10px;
-      background: #e0ffe0;
-      border: 1px solid #00aa00;
-      border-radius: 4px;
-      color: #006600;
-      display: none;
-    }
-    @media (max-width: 480px) {
-      .radio-group { flex-direction: column; }
+      display:none;
+      margin-top:15px;
+      padding:10px;
+      background:#e0ffe0;
+      border:1px solid #0a0;
+      border-radius:4px;
+      color:#060;
     }
   </style>
 </head>
-<body>
+<body data-theme="light">
   <div class="container">
-    <h1>International Phone Number Generator</h1>
-    
-    <!-- Theme and Customization Controls -->
-    <div class="theme-toggle">
-      <label for="themeSelector">Theme:</label>
-      <select id="themeSelector">
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-        <option value="black">Black (AMOLED)</option>
-      </select>
-    </div>
-    <div class="customization-panel" style="justify-content: space-between;">
+    <h1>Advanced Random Real International Phone Number Generator Tool</h1>
+
+    <!-- Theme + Font Controls -->
+    <div class="controls">
       <div>
-        <label for="fontSizeSelector">Font Size:</label>
-        <select id="fontSizeSelector">
-          <option value="14px">Small</option>
-          <option value="16px" selected>Normal</option>
-          <option value="18px">Large</option>
+        <label for="themeSelector">Theme:</label>
+        <select id="themeSelector">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="black">Black</option>
+          <option value="auto">Auto</option>
         </select>
       </div>
       <div>
-        <label for="layoutSelector">Layout:</label>
-        <select id="layoutSelector">
-          <option value="top">Top Navigation</option>
-          <option value="sidebar">Sidebar</option>
-        </select>
-      </div>
-      <div>
-        <button type="button" id="resetBtn">Reset Defaults</button>
+        <label for="fontSizeRange">Font Size:</label>
+        <input type="range" id="fontSizeRange" min="12" max="32" step="1">
+        <span class="font-size-value" id="fontSizeValue"></span>
       </div>
     </div>
-    
+
     <form id="generatorForm">
-      <!-- Country Code Selection with Tooltip -->
-      <label for="countryCode">
+      <!-- Country -->
+      <label class="field-label" for="countryCode">
         Select Country Code
-        <span class="info-icon" data-tooltip="Choose the country code. E.g., +1 for USA/Canada, +91 for India, etc.">ℹ️</span>
+        <span class="info-icon" data-tooltip="E.g. +1 USA, +91 India.">ℹ️</span>
       </label>
       <select id="countryCode" required>
         <option value="+1">+1 (USA/Canada)</option>
@@ -208,28 +209,28 @@
         <option value="+86">+86 (China)</option>
         <option value="+7">+7 (Russia)</option>
       </select>
-      
-      <!-- US State Dropdown for +1 -->
-      <div id="usStateContainer" style="display: none;">
-        <label for="usStateSelect">
+
+      <!-- US State Area Code -->
+      <div id="usStateContainer" style="display:none;">
+        <label class="field-label" for="usStateSelect">
           Select US State (Area Code)
-          <span class="info-icon" data-tooltip="Select a state; the option will list its current active area code(s).">ℹ️</span>
+          <span class="info-icon" data-tooltip="Pick a state to use its area codes.">ℹ️</span>
         </label>
         <select id="usStateSelect"></select>
       </div>
-      
-      <!-- Number of Phone Numbers with Tooltip & Real-time Validation -->
-      <label for="count">
+
+      <!-- Count -->
+      <label class="field-label" for="count">
         Number of Phone Numbers
-        <span class="info-icon" data-tooltip="Enter a value between 1 and 1000.">ℹ️</span>
+        <span class="info-icon" data-tooltip="At least 1, no upper limit.">ℹ️</span>
       </label>
-      <input type="number" id="count" min="1" max="1000" value="10" required>
+      <input type="number" id="count" min="1" value="10" required>
       <div id="countError" class="inline-error"></div>
-      
-      <!-- File Format Selection with Tooltip -->
-      <label>
+
+      <!-- Format -->
+      <label class="field-label">
         Select Output Format
-        <span class="info-icon" data-tooltip="Choose file type: TXT, VCF (vCard), CSV, or JSON.">ℹ️</span>
+        <span class="info-icon" data-tooltip="TXT, VCF, CSV, or JSON.">ℹ️</span>
       </label>
       <div class="radio-group">
         <label><input type="radio" name="format" value="txt" checked> .txt</label>
@@ -237,307 +238,157 @@
         <label><input type="radio" name="format" value="csv"> .csv</label>
         <label><input type="radio" name="format" value="json"> .json</label>
       </div>
-      
-      <!-- Generate Button -->
+
       <button type="submit">Generate &amp; Download</button>
     </form>
-    
-    <!-- Progress Indicator -->
+
+    <!-- Spinner & Notification -->
     <div id="progressIndicator">
       <div class="spinner"></div>
       Generating contacts...
     </div>
-    
-    <!-- Notification Message -->
     <div id="notification"></div>
   </div>
 
   <script>
-    /* --- Helper Functions for Realistic Number Generation --- */
-    // Generate a random digit in the range [min, max].
-    function randomDigit(min, max) {
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-    // Generate a string by replacing "N" with a digit from 2–9 and "X" with any digit.
-    function generateByPattern(pattern) {
-      return pattern.split("").map(char => {
-        if (char === 'N') {
-          return randomDigit(2, 9).toString();
-        } else if (char === 'X') {
-          return randomDigit(0, 9).toString();
-        } else {
-          return char;
-        }
-      }).join("");
-    }
-    // Generate a central office code with the format "NXX" while avoiding forbidden codes.
-    function generateCentralOffice() {
-      let code;
-      do {
-        code = generateByPattern("NXX");
-      } while (code === "555" || code === "911");
-      return code;
-    }
-    // Generate a four-digit station number.
-    function generateStationNumber() {
-      return generateByPattern("XXXX");
-    }
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- Theme Control ---
+      const root = document.documentElement;
+      const themeSel = document.getElementById('themeSelector');
+      function applyTheme(t) {
+        root.setAttribute('data-theme', t);
+        localStorage.setItem('preferredTheme', t);
+        themeSel.value = t;
+      }
+      themeSel.addEventListener('change', () => applyTheme(themeSel.value));
+      applyTheme(localStorage.getItem('preferredTheme') || 'light');
 
-    /* --- Comprehensive US States and Their Active Area Codes --- */
-    const usStates = {
-      "Alabama": ["205", "251", "256", "334", "938"],
-      "Alaska": ["907"],
-      "Arizona": ["480", "520", "602", "623", "928"],
-      "Arkansas": ["479", "501", "870"],
-      "California": ["209","213","310","323","408","415","424","442","510","530","559","562","619","626","650","657","661","707","714","747","760","805","818","820","831","858","909","916","925","949","951"],
-      "Colorado": ["303","719","720","970"],
-      "Connecticut": ["203","475","860","959"],
-      "Delaware": ["302"],
-      "Florida": ["239","305","321","352","386","407","561","727","754","772","786","813","850","863","904","941","954"],
-      "Georgia": ["229","404","470","478","678","706","762","770","912"],
-      "Hawaii": ["808"],
-      "Idaho": ["208","986"],
-      "Illinois": ["217","224","309","312","331","447","618","630","708","773","815","847","872"],
-      "Indiana": ["219","260","317","463","574","765","812","930"],
-      "Iowa": ["319","515","563","641","712"],
-      "Kansas": ["316","620","785","913"],
-      "Kentucky": ["270","364","502","606","859"],
-      "Louisiana": ["225","318","337","504","985"],
-      "Maine": ["207"],
-      "Maryland": ["240","301","410","443","667"],
-      "Massachusetts": ["339","351","413","508","617","774","781","857","978"],
-      "Michigan": ["231","248","269","313","517","586","616","734","810","906","989"],
-      "Minnesota": ["218","320","507","612","651","763","952"],
-      "Mississippi": ["228","601","662","769"],
-      "Missouri": ["314","417","573","636","660","816","975"],
-      "Montana": ["406"],
-      "Nebraska": ["308","402","531"],
-      "Nevada": ["702","725","775"],
-      "New Hampshire": ["603"],
-      "New Jersey": ["201","551","609","640","732","848","856","862","908","973"],
-      "New Mexico": ["505","575"],
-      "New York": ["212","315","332","347","516","518","585","607","631","646","716","718","845","914","917","929","934"],
-      "North Carolina": ["252","336","704","743","828","910","919","980","984"],
-      "North Dakota": ["701"],
-      "Ohio": ["216","220","234","330","419","440","513","567","614","740","937"],
-      "Oklahoma": ["405","539","580","918"],
-      "Oregon": ["458","503","541","971"],
-      "Pennsylvania": ["215","223","267","272","412","445","484","570","610","717","724","814","878"],
-      "Rhode Island": ["401"],
-      "South Carolina": ["803","843","854","864"],
-      "South Dakota": ["605"],
-      "Tennessee": ["423","615","629","731","865","901","931"],
-      "Texas": ["210","214","254","281","325","346","361","409","430","432","469","512","682","713","726","737","806","817","830","832","903","915","936","940","956","972","979"],
-      "Utah": ["385","435","801"],
-      "Vermont": ["802"],
-      "Virginia": ["276","434","540","571","703","757","804"],
-      "Washington": ["206","253","360","425","509"],
-      "West Virginia": ["304","681"],
-      "Wisconsin": ["262","414","534","608","715","920"],
-      "Wyoming": ["307"],
-      "District of Columbia": ["202"]
-    };
+      // --- Font‑Size Slider ---
+      const fontRange = document.getElementById('fontSizeRange');
+      const fontValue = document.getElementById('fontSizeValue');
+      fontRange.addEventListener('input', () => {
+        const sz = fontRange.value + 'px';
+        root.style.setProperty('--font-size', sz);
+        fontValue.textContent = sz;
+        localStorage.setItem('preferredFontSize', fontRange.value);
+      });
+      const saved = localStorage.getItem('preferredFontSize') || 16;
+      fontRange.value = saved;
+      fontRange.dispatchEvent(new Event('input'));
 
-    /* --- Populate US State Dropdown --- */
-    const usStateSelect = document.getElementById("usStateSelect");
-    function populateStates() {
-      usStateSelect.innerHTML = "";
-      for (const state in usStates) {
-        const codes = usStates[state].join(", ");
-        const option = document.createElement("option");
-        // Store all area codes as a comma‑separated string.
-        option.value = usStates[state].join(",");
-        option.textContent = `${state} (${codes})`;
-        usStateSelect.appendChild(option);
+      // --- US States Mapping & Dropdown ---
+      const usStates = {
+        "Alabama":["205","251","256","334","938"],"Alaska":["907"],
+        "Arizona":["480","520","602","623","928"],"Arkansas":["479","501","870"],
+        "California":["209","213","310","323","408","415","424","442","510","530","559","562","619","626","650","657","661","707","714","747","760","805","818","820","831","858","909","916","925","949","951"],
+        "Colorado":["303","719","720","970"],"Connecticut":["203","475","860","959"],"Delaware":["302"],
+        "Florida":["239","305","321","352","386","407","561","727","754","772","786","813","850","863","904","941","954"],
+        "Georgia":["229","404","470","478","678","706","762","770","912"],"Hawaii":["808"],
+        "Idaho":["208","986"],"Illinois":["217","224","309","312","331","447","618","630","708","773","815","847","872"],
+        "Indiana":["219","260","317","463","574","765","812","930"],"Iowa":["319","515","563","641","712"],
+        "Kansas":["316","620","785","913"],"Kentucky":["270","364","502","606","859"],"Louisiana":["225","318","337","504","985"],
+        "Maine":["207"],"Maryland":["240","301","410","443","667"],"Massachusetts":["339","351","413","508","617","774","781","857","978"],
+        "Michigan":["231","248","269","313","517","586","616","734","810","906","989"],"Minnesota":["218","320","507","612","651","763","952"],
+        "Mississippi":["228","601","662","769"],"Missouri":["314","417","573","636","660","816","975"],"Montana":["406"],
+        "Nebraska":["308","402","531"],"Nevada":["702","725","775"],"New Hampshire":["603"],
+        "New Jersey":["201","551","609","640","732","848","856","862","908","973"],"New Mexico":["505","575"],
+        "New York":["212","315","332","347","516","518","585","607","631","646","716","718","845","914","917","929","934"],
+        "North Carolina":["252","336","704","743","828","910","919","980","984"],"North Dakota":["701"],
+        "Ohio":["216","220","234","330","419","440","513","567","614","740","937"],"Oklahoma":["405","539","580","918"],
+        "Oregon":["458","503","541","971"],"Pennsylvania":["215","223","267","272","412","445","484","570","610","717","724","814","878"],
+        "Rhode Island":["401"],"South Carolina":["803","843","854","864"],"South Dakota":["605"],
+        "Tennessee":["423","615","629","731","865","901","931"],"Texas":["210","214","254","281","325","346","361","409","430","432","469","512","682","713","726","737","806","817","830","832","903","915","936","940","956","972","979"],
+        "Utah":["385","435","801"],"Vermont":["802"],"Virginia":["276","434","540","571","703","757","804"],
+        "Washington":["206","253","360","425","509"],"West Virginia":["304","681"],"Wisconsin":["262","414","534","608","715","920"],
+        "Wyoming":["307"],"District of Columbia":["202"]
+      };
+      const countryCode = document.getElementById('countryCode');
+      const usContainer = document.getElementById('usStateContainer');
+      const usSelect    = document.getElementById('usStateSelect');
+      function populateStates() {
+        usSelect.innerHTML = '';
+        for (const [st, codes] of Object.entries(usStates)) {
+          const o = document.createElement('option');
+          o.value = codes.join(',');
+          o.textContent = `${st} (${codes.join(', ')})`;
+          usSelect.appendChild(o);
+        }
       }
-    }
-    
-    /* --- Phone Number Generators for Each Country --- */
-    const phoneGenerators = {
-      "+1": function() {
-        let area;
-        // If a state is selected, extract the area codes and choose one at random.
-        if (usStateSelect && usStateSelect.value) {
-          const areas = usStateSelect.value.split(",");
-          area = areas[Math.floor(Math.random() * areas.length)].trim();
+      countryCode.addEventListener('change', () => {
+        if (countryCode.value === '+1') {
+          usContainer.style.display = 'block';
+          populateStates();
         } else {
-          area = generateByPattern("NXX");
+          usContainer.style.display = 'none';
         }
-        const central = generateCentralOffice();
-        const station = generateStationNumber();
-        return area + central + station;
-      },
-      "+91": function() {
-        let firstDigit = ["6", "7", "8", "9"][Math.floor(Math.random() * 4)];
-        return firstDigit + generateByPattern("XXXXXXXXX");
-      },
-      "+44": function() {
-        return generateByPattern("7XXXXXXXXX");
-      },
-      "+61": function() {
-        return generateByPattern("4XXXXXXXX");
-      },
-      "+49": function() {
-        const prefixes = ["151","152","157","159"];
-        let prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        return prefix + generateByPattern("XXXXXXX");
-      },
-      "+33": function() {
-        let first = Math.random() < 0.5 ? "6" : "7";
-        return first + generateByPattern("XXXXXXXX");
-      },
-      "+55": function() {
-        return "9" + generateByPattern("XXXXXXXX");
-      },
-      "+81": function() {
-        const prefixes = ["080","090","070"];
-        let prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        return prefix + generateByPattern("XXXXXXXX");
-      },
-      "+86": function() {
-        const prefixes = ["130","131","132","133","134","135","136","137","138","139"];
-        let prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        return prefix + generateByPattern("XXXXXXXX");
-      },
-      "+7": function() {
-        return "9" + generateByPattern("XXXXXXXXX");
-      }
-    };
-    function defaultGenerator() {
-      return generateByPattern("XXXXXXXXXX");
-    }
-    
-    /* --- Create File Content --- */
-    function createFileContent(countryCode, count, format) {
-      let content = "";
-      const generateNumber = phoneGenerators[countryCode] || defaultGenerator;
-      if (format === "txt") {
-        for (let i = 1; i <= count; i++) {
-          const phoneNumber = countryCode + generateNumber();
-          content += `Contact ${i}: ${phoneNumber}\n`;
-        }
-      } else if (format === "vcf") {
-        for (let i = 1; i <= count; i++) {
-          const phoneNumber = countryCode + generateNumber();
-          content += "BEGIN:VCARD\n";
-          content += "VERSION:3.0\n";
-          content += `FN:Contact ${i}\n`;
-          content += `TEL;TYPE=CELL:${phoneNumber}\n`;
-          content += "END:VCARD\n\n";
-        }
-      } else if (format === "csv") {
-        content = "Contact,Phone Number\n";
-        for (let i = 1; i <= count; i++) {
-          const phoneNumber = countryCode + generateNumber();
-          content += `"Contact ${i}","${phoneNumber}"\n`;
-        }
-      } else if (format === "json") {
-        let contacts = [];
-        for (let i = 1; i <= count; i++) {
-          const phoneNumber = countryCode + generateNumber();
-          contacts.push({ contact: `Contact ${i}`, phoneNumber: phoneNumber });
-        }
-        content = JSON.stringify(contacts, null, 2);
-      }
-      return content;
-    }
-    
-    /* --- Utility to Trigger File Download --- */
-    function downloadFile(filename, content) {
-      const blob = new Blob([content], { type: "text/plain" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-    
-    /* --- Input Validation --- */
-    const countInput = document.getElementById("count");
-    const countError = document.getElementById("countError");
-    countInput.addEventListener("input", () => {
-      const value = parseInt(countInput.value, 10);
-      countError.textContent = (isNaN(value) || value < 1 || value > 1000) 
-                                ? "Please enter a number between 1 and 1000." : "";
-    });
-    
-    /* --- Country Code and US State Dropdown Handling --- */
-    const countryCodeSelect = document.getElementById("countryCode");
-    const usStateContainer = document.getElementById("usStateContainer");
-    countryCodeSelect.addEventListener("change", () => {
-      if (countryCodeSelect.value === "+1") {
-        usStateContainer.style.display = "block";
+      });
+      // initial
+      if (countryCode.value === '+1') {
+        usContainer.style.display = 'block';
         populateStates();
-      } else {
-        usStateContainer.style.display = "none";
       }
-    });
-    // On initial load, display state dropdown if country is +1.
-    if (countryCodeSelect.value === "+1") {
-      usStateContainer.style.display = "block";
-      populateStates();
-    }
-    
-    /* --- Form Submission Handler --- */
-    document.getElementById("generatorForm").addEventListener("submit", function(e) {
-      e.preventDefault();
-      const countValue = parseInt(countInput.value, 10);
-      if (isNaN(countValue) || countValue < 1 || countValue > 1000) {
-        countError.textContent = "Please enter a valid number between 1 and 1000.";
-        return;
+
+      // --- Number Generators & Download ---
+      const countInput = document.getElementById('count');
+      const countError = document.getElementById('countError');
+      function randomDigit(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+      function genByPattern(p){return p.split('').map(c=>c==='N'?randomDigit(2,9):c==='X'?randomDigit(0,9):c).join('');}
+      function central(){let c; do{c=genByPattern('NXX');}while(c==='555'||c==='911');return c;}
+      function station(){return genByPattern('XXXX');}
+      const phoneGen = {
+        '+1': ()=>{const areas=usSelect.value.split(',');const a=areas[Math.floor(Math.random()*areas.length)].trim();return a+central()+station();},
+        '+91':()=>['6','7','8','9'][Math.floor(Math.random()*4)]+genByPattern('XXXXXXXXX'),
+        '+44':()=>genByPattern('7XXXXXXXXX'), '+61':()=>genByPattern('4XXXXXXXX'),
+        '+49':()=>(['151','152','157','159'][Math.floor(Math.random()*4)]+genByPattern('XXXXXXX')),
+        '+33':()=>((Math.random()<0.5?'6':'7')+genByPattern('XXXXXXXX')),
+        '+55':()=>('9'+genByPattern('XXXXXXXX')),
+        '+81':()=>(['080','090','070'][Math.floor(Math.random()*3)]+genByPattern('XXXXXXXX')),
+        '+86':()=>(['130','131','132','133','134','135','136','137','138','139'][Math.floor(Math.random()*10)]+genByPattern('XXXXXXXX')),
+        '+7':()=>('9'+genByPattern('XXXXXXXXX'))
+      };
+      function downloadFile(txt, name, mime){
+        const blob=new Blob([txt],{type:mime}),url=URL.createObjectURL(blob),a=document.createElement('a');
+        a.href=url;a.download=name;document.body.appendChild(a);a.click();
+        document.body.removeChild(a);URL.revokeObjectURL(url);
       }
-      const progress = document.getElementById("progressIndicator");
-      progress.style.display = "block";
-      const startTime = performance.now();
-      setTimeout(() => {
-        const countryCode = document.getElementById("countryCode").value;
-        const format = document.querySelector('input[name="format"]:checked').value;
-        const content = createFileContent(countryCode, countValue, format);
-        const filename = "contacts." + format;
-        downloadFile(filename, content);
-        const elapsed = ((performance.now() - startTime) / 1000).toFixed(2);
-        progress.style.display = "none";
-        const notification = document.getElementById("notification");
-        notification.textContent = `Generated ${countValue} contacts in ${elapsed} seconds. Download started.`;
-        notification.style.display = "block";
-        setTimeout(() => {
-          notification.style.display = "none";
-        }, 5000);
-      }, 500);
-    });
-    
-    /* --- Theme Toggle & Customization --- */
-    const themeSelector = document.getElementById("themeSelector");
-    const root = document.documentElement;
-    function applyTheme(theme) {
-      root.setAttribute("data-theme", theme);
-      localStorage.setItem("preferredTheme", theme);
-      themeSelector.value = theme;
-    }
-    themeSelector.addEventListener("change", () => { applyTheme(themeSelector.value); });
-    const savedTheme = localStorage.getItem("preferredTheme") || "light";
-    applyTheme(savedTheme);
-    
-    const fontSizeSelector = document.getElementById("fontSizeSelector");
-    fontSizeSelector.addEventListener("change", () => {
-      document.documentElement.style.setProperty("--font-size", fontSizeSelector.value);
-    });
-    document.documentElement.style.setProperty("--font-size", fontSizeSelector.value);
-    
-    const layoutSelector = document.getElementById("layoutSelector");
-    layoutSelector.addEventListener("change", () => {
-      console.log("Layout changed to:", layoutSelector.value);
-    });
-    
-    // Reset functionality.
-    document.getElementById("resetBtn").addEventListener("click", () => {
-      document.getElementById("countryCode").value = "+1";
-      document.getElementById("count").value = "10";
-      document.querySelector('input[name="format"][value="txt"]').checked = true;
-      countError.textContent = "";
-      usStateContainer.style.display = "block";
-      populateStates();
+
+      // Form submit
+      document.getElementById('generatorForm').addEventListener('submit', e=>{
+        e.preventDefault();
+        const n=parseInt(countInput.value,10);
+        if(isNaN(n)||n<1){ countError.textContent='Enter at least 1.'; return; }
+        countError.textContent='';
+        const spinner=document.getElementById('progressIndicator');
+        spinner.style.display='block';
+        setTimeout(()=>{
+          const code=countryCode.value;
+          const fmt=document.querySelector('input[name="format"]:checked').value;
+          let content='';
+          const gen=phoneGen[code]||(()=>genByPattern('XXXXXXXXXX'));
+          if(fmt==='txt'){
+            for(let i=1;i<=n;i++) content+=`Contact ${i}: ${code}${gen()}\n`;
+          } else if(fmt==='vcf'){
+            for(let i=1;i<=n;i++){
+              content+=`BEGIN:VCARD\nVERSION:3.0\nFN:Contact ${i}\nTEL;TYPE=CELL:${code}${gen()}\nEND:VCARD\n\n`;
+            }
+          } else if(fmt==='csv'){
+            content='Contact,Phone Number\n';
+            for(let i=1;i<=n;i++) content+=`"Contact ${i}","${code}${gen()}"\n`;
+          } else {
+            const arr=[];
+            for(let i=1;i<=n;i++) arr.push({name:`Contact ${i}`,phone:`${code}${gen()}`});
+            content=JSON.stringify(arr,null,2);
+          }
+          let mime='text/plain';
+          if(fmt==='vcf') mime='text/vcard'; else if(fmt==='csv') mime='text/csv'; else if(fmt==='json') mime='application/json';
+          downloadFile(content,`contacts.${fmt}`,mime);
+          spinner.style.display='none';
+          const note=document.getElementById('notification');
+          note.textContent=`Generated ${n} contacts. Download started.`;
+          note.style.display='block';
+          setTimeout(()=>note.style.display='none',4000);
+        },200);
+      });
     });
   </script>
 </body>
