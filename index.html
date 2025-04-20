@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Advanced Random Phone Number Generator | Export vCard, CSV, JSON</title>
+  <link rel="stylesheet" href="style.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/google-libphonenumber/3.2.25/libphonenumber.js" defer></script>
+  <script src="script.js" defer></script>
+</head>
+<body data-theme="auto">
+  <main class="container">
+    <h1 class="title">Advanced Random Phone Number Generator</h1>
+    <section class="controls">
+      <div class="control-group">
+        <label for="themeSelector">Theme:</label>
+        <select id="themeSelector" class="select-input">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+          <option value="black">Black</option>
+          <option value="auto">Auto</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="fontSizeRange">Font Size:</label>
+        <input type="range" id="fontSizeRange" min="12" max="32" step="1" class="range-input"/>
+        <span id="fontSizeValue" class="range-value">16px</span>
+      </div>
+    </section>
+    <form id="generatorForm" class="form">
+      <div class="form-group">
+        <label for="countryCode">Select Country
+          <span class="info-icon" data-tooltip="Double-click to ★ favorite.">ℹ️</span>
+        </label>
+        <select id="countryCode" class="select-input"></select>
+      </div>
+      <div id="usStateContainer" class="form-group" hidden>
+        <label for="usStateSelect">Select US State (Area Code)
+          <span class="info-icon" data-tooltip="Choose state for area codes.">ℹ️</span>
+        </label>
+        <select id="usStateSelect" class="select-input"></select>
+      </div>
+      <div class="form-group">
+        <label for="count">Number of Phone Numbers
+          <span class="info-icon" data-tooltip="At least 1, no upper limit.">ℹ️</span>
+        </label>
+        <input type="number" id="count" min="1" value="10" required class="number-input"/>
+        <div id="countError" class="inline-error"></div>
+      </div>
+      <fieldset class="form-group radio-group">
+        <legend>Select Output Format
+          <span class="info-icon" data-tooltip="TXT, VCF, CSV, or JSON.">ℹ️</span>
+        </legend>
+        <label><input type="radio" name="format" value="txt" checked /> .txt</label>
+        <label><input type="radio" name="format" value="vcf" /> .vcf</label>
+        <label><input type="radio" name="format" value="csv" /> .csv</label>
+        <label><input type="radio" name="format" value="json" /> .json</label>
+      </fieldset>
+      <button type="submit" class="btn">Generate & Download</button>
+    </form>
+    <div id="progressIndicator" class="status" hidden>
+      <div class="spinner"></div>
+      <span>Generating contacts...</span>
+    </div>
+    <div id="notification" class="status notification" hidden></div>
+  </main>
+</body>
+</html>
